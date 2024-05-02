@@ -21,19 +21,25 @@ function fai_scanforobject(id)
 	if vai_objectscan[id]<=0 then -- timer is 0 and bot is not already using something.
 		vai_objectscan[id]=math.random(150,350)
 		
-		if vai_mode[id] ~= 21 and vai_mode[id]~=9 and vai_mode[id]~=22 and vai_mode[id]~=23 and vai_mode[id]~=20 and vai_mode[id]~=24 and vai_mode[id]~=63 then
+		if vai_mode[id] ~= 21 and vai_mode[id]~=9 and vai_mode[id]~=22 and vai_mode[id]~=23 and vai_mode[id]~=20 and vai_mode[id]~=24 and vai_mode[id]~=63  and vai_mode[id]~=32 and vai_mode[id]~=31 then
 		
-			local objectlist=closeobjects(player(id,"x"),player(id,"y"),256) -- 8 tiles range
+			local objectlist=closeobjects(player(id,"x"),player(id,"y"),512) -- 16 tiles range
 			health = health + 20 -- health tolerance
 			money = money + 1500 -- money tolerance
+			local obtype
+			local obteam
+			local obx
+			local oby
+			local obmode
+			local builder
 
 			for _,obj in pairs(objectlist) do -- bot will probably use the first object it sees. Objects are sorted by IDs. Maybe we should select a random object instead of always using the first in the list?
-				local obtype=object(obj,"type")
-				local obteam=object(obj,"team")
-				local obx=object(obj,"tilex")
-				local oby=object(obj,"tiley")
-				local obmode=object(obj,"mode")
-				local builder=object(obj,"player")
+				obtype=object(obj,"type")
+				obteam=object(obj,"team")
+				obx=object(obj,"tilex")
+				oby=object(obj,"tiley")
+				obmode=object(obj,"mode")
+				builder=object(obj,"player")
 
 				if obteam==pteam then -- object must be from our team
 					if obtype==7 then -- dispenser
@@ -73,7 +79,7 @@ function fai_gotoobject(id, obx, oby, obtype, obj, side)
 		solid=true -- dispenser is solid
 	end
 	
-	if solid==true then -- change the final destination to the side of the object
+	if solid then -- change the final destination to the side of the object
 		if side == 0 then
 			finalx,finaly=fai_findbpab(id,obj)
 		else
@@ -165,7 +171,7 @@ function fai_upgradeobject(id,oid)
 	end
 	
 	local weaponstable=playerweapons(id)
-	if fai_contains(weaponstable,74) == false then
+	if not fai_contains(weaponstable,74) then
 		vai_mode[id]=0
 		if vai_set_debug==1 then
 			print("fai_upgradeobject: bot does not contains a wrench")
@@ -195,7 +201,7 @@ function fai_upgradeobject(id,oid)
 			vai_smode[id]=2
 		end
 	-- SUB MODE 2: Upgrade the object
-	elseif vai_smode[id] == 2 then
+	elseif vai_smode[id] == 2 and object(oid, "exists") then
 		local aimx=object(oid,"x")+math.random(-1,1)+16
 		local aimy=object(oid,"y")+math.random(-1,1)+16
 		ai_selectweapon(id,74)

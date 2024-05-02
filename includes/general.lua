@@ -338,7 +338,7 @@ function fai_findobjtarget(id)
 	local std=512 -- shortest distance
 	local dth=0 -- distance helper
 	local targetid=0 -- ID of the closest object
-	local objectlist=closeobjects(px,py,256)
+	local objectlist=closeobjects(px,py,512)
 	
 	for _,oid in pairs(objectlist) do
 		local ox=object(oid,"tilex")
@@ -436,6 +436,10 @@ end
 -- find best position around object (no diagonal)
 -- player ID, object ID
 function fai_findbpab2(pid,oid)
+	if not object(oid, "exists") then
+		return -1, -1
+	end
+
 	local ptx=player(pid,"tilex")
 	local pty=player(pid,"tiley")
 	local otx=object(oid,"tilex")

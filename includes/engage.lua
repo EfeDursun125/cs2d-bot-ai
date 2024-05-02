@@ -130,8 +130,8 @@ function fai_engage(id)
 	end
 	
 	if vai_target[id]==0 and vai_targetobj[id]>0 then
-		vai_aimx[id]=object(vai_targetobj[id],"x")+16
-		vai_aimy[id]=object(vai_targetobj[id],"y")+16
+		vai_aimx[id]=object(vai_targetobj[id],"x") + 16 + math.random(-1, 1)
+		vai_aimy[id]=object(vai_targetobj[id],"y") + 16 + math.random(-1, 1)
 		-- Switch to Fight Mode
 		if vai_mode[id]~=4 and vai_mode[id]~=5 and vai_mode[id]~=30 and vai_mode[id]~=31 and vai_mode[id]~=32 then
 			vai_mode[id]=30

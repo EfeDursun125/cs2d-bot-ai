@@ -8,8 +8,8 @@ function fai_findbuildspot(id)
 	if team==1 then -- TERRORIST
 	-- build1: map objective | build2: bot node if available | build3: random tile
 		--local r=math.random(1,3)
-		local buildx=math.random(-3,3)
-		local buildy=math.random(-3,3)
+		local buildx=math.random(-60,60)
+		local buildy=math.random(-60,60)
 		if r==1 then -- build at entities of interest
 			if map("mission_vips")>0 then
 				vai_destx[id],vai_desty[id]=randomentity(6) -- info_escapepoint
@@ -41,8 +41,14 @@ function fai_findbuildspot(id)
 				vai_desty[id]=vai_desty[id]+buildy
 				vai_mode[id]=61
 				vai_smode[id]=1
+			elseif map("botnodes")>0 then
+				vai_destx[id],vai_desty[id]=randomentity(19) -- info_botnode
+				vai_destx[id]=vai_destx[id]+buildx
+				vai_desty[id]=vai_desty[id]+buildy
+				vai_mode[id]=61
+				vai_smode[id]=1
 			else
-				vai_destx[id],vai_desty[id]=randomentity(0) -- info_t
+				vai_destx[id],vai_desty[id]=randomentity(1) -- info_ct
 				vai_destx[id]=vai_destx[id]+buildx
 				vai_desty[id]=vai_desty[id]+buildy
 				vai_mode[id]=61
@@ -56,7 +62,7 @@ function fai_findbuildspot(id)
 				vai_mode[id]=61
 				vai_smode[id]=2
 			elseif math.random(1,10)>=4 then
-				vai_destx[id],vai_desty[id]=randomentity(0) -- info_t
+				vai_destx[id],vai_desty[id]=randomentity(1) -- info_ct
 				vai_destx[id]=vai_destx[id]+buildx
 				vai_desty[id]=vai_desty[id]+buildy
 				vai_mode[id]=61
@@ -121,8 +127,8 @@ function fai_findbuildspot(id)
 		end
 	else -- COUNTER-TERRORIST
 		--local r=math.random(1,3)
-		local buildx=math.random(-3,3)
-		local buildy=math.random(-3,3)
+		local buildx=math.random(-60,60)
+		local buildy=math.random(-60,60)
 		if r==1 then -- build at entities of interest
 			if map("mission_vips")>0 then
 				vai_destx[id],vai_desty[id]=randomentity(6) -- info_escapepoint
@@ -154,8 +160,14 @@ function fai_findbuildspot(id)
 				vai_desty[id]=vai_desty[id]+buildy
 				vai_mode[id]=61
 				vai_smode[id]=1
+			elseif map("botnodes")>0 then
+				vai_destx[id],vai_desty[id]=randomentity(19) -- info_botnode
+				vai_destx[id]=vai_destx[id]+buildx
+				vai_desty[id]=vai_desty[id]+buildy
+				vai_mode[id]=61
+				vai_smode[id]=1
 			else
-				vai_destx[id],vai_desty[id]=randomentity(1) -- info_ct
+				vai_destx[id],vai_desty[id]=randomentity(0) -- info_t
 				vai_destx[id]=vai_destx[id]+buildx
 				vai_desty[id]=vai_desty[id]+buildy
 				vai_mode[id]=61
@@ -169,7 +181,7 @@ function fai_findbuildspot(id)
 				vai_mode[id]=61
 				vai_smode[id]=2
 			elseif math.random(1,10)>=4 then
-				vai_destx[id],vai_desty[id]=randomentity(1) -- info_ct
+				vai_destx[id],vai_desty[id]=randomentity(0) -- info_t
 				vai_destx[id]=vai_destx[id]+buildx
 				vai_desty[id]=vai_desty[id]+buildy
 				vai_mode[id]=61
@@ -244,17 +256,23 @@ function fai_findbuildspot(id)
 		end
 	end
 
-	-- FAIL SAFE
-	if vai_destx[id] == nil then -- make sure we have a valid number
-		vai_mode[id]=0
-		vai_smode[id]=0
-	end
 	-- make sure our destination is a walkable tile
-	if not tile(vai_destx[id],vai_desty[id], "walkable") then
-		vai_mode[id]=0
-		vai_smode[id]=0
-		if vai_set_debug==1 then
-			print("build spot not walkable")
+	if vai_destx[id] == nil or vai_desty[id] == nil or not tile(vai_destx[id], vai_desty[id], "walkable") then
+		if vai_destx[id] == nil or vai_desty[id] == nil or tile(vai_destx[id], vai_desty[id], "entity") ~= 0 then -- idk how this became nil...
+			if vai_set_debug==1 then
+				print("entity check (it works weird... idk why)")
+			end
+
+			if vai_destx[id] == nil or vai_desty[id] == nil then
+				vai_destx[id] = 1
+				vai_desty[id] = 1
+			end
+		else
+			vai_mode[id]=0
+			vai_smode[id]=0
+			if vai_set_debug==1 then
+				print("build spot not walkable")
+			end
 		end
 	end
 end
