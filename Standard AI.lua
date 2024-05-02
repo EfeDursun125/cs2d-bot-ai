@@ -116,17 +116,20 @@ end
 -- This function is called by CS2D automatically for each *LIVING* bot each frame
 -- Parameter: id = player ID of the bot
 function ai_update_living(id)
-
-	-- Engage / Aim
-	-- scan surroundings for close enemies and attack them if possible
-	fai_engage(id)
-	
 	-- bot might get kicked or killed for teamkills etc - check if it is still in-game
 	if not player(id,"exists") then
 		return
 	elseif player(id,"team")<=0 or player(id,"health")<=0 then
 		return
 	end
+
+	-- Engage / Aim
+	-- scan surroundings for close enemies and attack them if possible
+	fai_engage(id)
+
+	-- Scan surroundings for entities of interest
+	fai_scanforentity(id)
+	fai_scanforobject(id)
 	
 	-- Send radio answer when radio answer timer expires
 	if vai_radioanswert[id]>0 then
@@ -141,17 +144,12 @@ function ai_update_living(id)
 		
 	-- Collect nearby items
 	fai_collect(id)
-	-- Scan surroundings for entities of interest
-	fai_scanforentity(id)
-	fai_scanforobject(id)
 	
 	-- Set AI Debug Output (only visible if CS2D setting "debugai" is set to 1)
 	if vai_set_debug then
 		ai_debug(id,"m:"..vai_mode[id]..", sm:"..vai_smode[id].." ta:"..vai_target[id].." ti:"..vai_timer[id]..", es:"..vai_entityscan[id]..", os: "..vai_objectscan[id])
 	end
-	
-	
-	
+
 	-- The AI is basically a state machine
 	-- vai_mode contains the current state, vai_smode contains a sub mode or parameter for the state
 	
@@ -196,6 +194,25 @@ function ai_update_living(id)
 	elseif vai_mode[id]==4 then
 		-- ############################################################ 4: FIGHT -> fight
 		fai_fight(id)
+	
+	elseif vai_mode[id]==30 then
+		-- ############################################################ 30: FOUND OBJECT -> the bot found an object, decide what to do.
+		fai_enganeobject(id)
+
+	elseif vai_mode[id]==32 then
+		-- ############################################################ 32: RANGED OBJECT -> do a ranged attack on an object
+		fai_rangedobject(id)
+	
+	elseif vai_mode[id]==31 then
+		-- ############################################################ 31: MELEE OBJECT -> do a melee attack on an object
+		local result=ai_goto(id,vai_destx[id],vai_desty[id])
+		if result==1 then
+			fai_meleeobject(id)
+		elseif result==0 then
+			vai_mode[id]=0
+		else
+			fai_walkaim(id)
+		end
 
 	elseif vai_mode[id]==5 then
 		-- ############################################################ 5: HUNT -> hunt another player
@@ -329,25 +346,6 @@ function ai_update_living(id)
 	elseif vai_mode[id]==24 then
 		-- ############################################################ 24: UPGRADE OBJECT -> bot is using upgrading an object
 		fai_upgradeobject(id,vai_cache[id])
-		
-	elseif vai_mode[id]==30 then
-		-- ############################################################ 30: FOUND OBJECT -> the bot found an object, decide what to do.
-		fai_enganeobject(id)
-		
-	elseif vai_mode[id]==31 then
-		-- ############################################################ 31: MELEE OBJECT -> do a melee attack on an object
-		local result=ai_goto(id,vai_destx[id],vai_desty[id])
-		if result==1 then
-			fai_meleeobject(id)
-		elseif result==0 then
-			vai_mode[id]=0
-		else
-			fai_walkaim(id)
-		end
-
-	elseif vai_mode[id]==32 then
-		-- ############################################################ 32: RANGED OBJECT -> do a ranged attack on an object
-		fai_rangedobject(id)
 	
 	elseif vai_mode[id]==50 then
 		-- ############################################################ 50: RESCUE -> rescue hostages
